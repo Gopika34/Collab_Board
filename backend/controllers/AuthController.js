@@ -1,14 +1,15 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import {userModel} from "../models/User.js";
 
-export const signup =(req,res)=>{
+export const signup =async(req,res)=>{
     const {userName,email,password}=req.body;
-    const checkUser= User.findOne({email});
+    const checkUser= await userModel.findOne({email});
     if(checkUser) return res.status(404).json({message:"User already exist!"});
 
-    const hashedPassword= bcrypt.hash(password,10);
+    const hashedPassword= await bcrypt.hash(password,10);
 
-    await User.create({
+    await userModel.create({
         userName: userName,
         email:email,
         password: hashedPassword
@@ -17,13 +18,13 @@ export const signup =(req,res)=>{
     res.json({message:"User successfully registered!"});
 }
 
-export const login =(req,res)=>{
+export const login =async(req,res)=>{
     const {email,password}=req.body;
     
-    const checkUser= User.findOne({email});
+    const checkUser= await userModel.findOne({email});
     if(!checkUser) return res.status(404).json({message:"User Not found"});
 
-    const comparedPassword= bcrypt.compare(password,checkUser.password);
+    const comparedPassword= await bcrypt.compare(password,checkUser.password);
     if(!comparedPassword) return res.status(404).json({message:""});
 
     const token=await jwt.sign(
