@@ -14,9 +14,9 @@ export const createCard=async (req,res) => {
         return res.status(500).json({message:err.message});
     }
 }
-export const getCardByID=async (req,res) => {
+export const fetchCard=async (req,res) => {
     try{
-        const cards = await cardModel.findById({listId:req.params.listId});
+        const cards = await cardModel.find({listId:req.params.listId});
         return res.json(cards);
     }
     catch(err){

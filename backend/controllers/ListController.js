@@ -13,9 +13,9 @@ export const createList=async (req,res) => {
         return res.status(500).json({message:err.message});
     }
 }
-export const getListByID=async (req,res) => {
+export const fetchList=async (req,res) => {
     try{
-        const lists= await listModel.findById({boardId: req.params.boardId});
+        const lists= await listModel.find({boardId: req.params.boardId});
         return res.json(lists);
     }
     catch(err){
