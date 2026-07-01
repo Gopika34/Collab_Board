@@ -10,13 +10,13 @@ const boardSchema= mongoose.Schema({
 
     owner:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'userModel',
+        ref: 'UserModel',
         required: true
     },
 
     members:[{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'userModel'
+        ref: 'UserModel'
     }]
 },{timestamps: true});
 

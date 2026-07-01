@@ -16,7 +16,7 @@ const cardSchema= mongoose.Schema({
 
     listId:{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'List',
+        ref: 'ListModel',
         required: true
     },
     
