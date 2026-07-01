@@ -2,7 +2,7 @@ import {listModel} from "../models/List.js";
 
 export const createList=async (req,res) => {
     try{
-        const list= listModel.create({
+        const list= await listModel.create({
             title: req.body.title,
             boardId: req.body.boardId,
             order: req.body.order
@@ -15,7 +15,7 @@ export const createList=async (req,res) => {
 }
 export const getListByID=async (req,res) => {
     try{
-        const lists= listModel.findById({boardId: req.params.boardId});
+        const lists= await listModel.findById({boardId: req.params.boardId});
         return res.json(lists);
     }
     catch(err){
@@ -25,12 +25,12 @@ export const getListByID=async (req,res) => {
 
 export const updateList=async(req,res) => {
     try{
-        const list= listModel.findByIdAndUpdate(
-            req.params.boardId,
+        const list= await listModel.findByIdAndUpdate(
+            req.params.id,
             req.body,
             {new:true}
         );
-        return res.json(AudioListener);
+        return res.json(list);
     }
     catch(err){
         return res.status(500).json({message:err.message});
@@ -38,7 +38,7 @@ export const updateList=async(req,res) => {
 }
 export const deleteList=async (req,res) => {
     try{
-        const list= listModel.findByIdAndDelete(req.params.boardId);
+        await listModel.findByIdAndDelete(req.params.id);
         return res.json({message:"List deleted!"});
     }
     catch(err){

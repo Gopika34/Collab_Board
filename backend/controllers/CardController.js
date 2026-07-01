@@ -2,7 +2,7 @@ import {cardModel} from "../models/Card.js";
 
 export const createCard=async (req,res) => {
     try{
-        const card= cardModel.create({
+        const card= await cardModel.create({
             title: req.body.title,
             description:req.body.description,
             listId:req.body.listId,
@@ -16,7 +16,7 @@ export const createCard=async (req,res) => {
 }
 export const getCardByID=async (req,res) => {
     try{
-        const cards = cardModel.findById({listId:req.body.listId});
+        const cards = await cardModel.findById({listId:req.params.listId});
         return res.json(cards);
     }
     catch(err){
@@ -25,8 +25,8 @@ export const getCardByID=async (req,res) => {
 }
 export const updateCard=async (req,res) => {
     try{
-        const card= cardModel.findByIdAndUpdate(
-            req.params.listId,
+        const card= await cardModel.findByIdAndUpdate(
+            req.params.id,
             req.body,
             {new:true}
         );
@@ -38,7 +38,7 @@ export const updateCard=async (req,res) => {
 }
 export const deleteCard=async (req,res) => {
     try{
-        const card= cardModel.findByIdAndUpdate(req.body.listId);
+        await cardModel.findByIdAndUpdate(req.params.id);
         return res.json({message:"Card deleted!"});
     }
     catch(err){
