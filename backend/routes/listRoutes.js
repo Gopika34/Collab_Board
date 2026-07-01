@@ -1,4 +1,4 @@
-import { createList,fetchList,updateList,deleteList } from "../controllers/ListController.S";
+import { createList,fetchList,updateList,deleteList } from "../controllers/ListController.js";
 import {Router} from "express";
 
 const listRoutes=Router();
