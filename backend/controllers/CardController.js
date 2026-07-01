@@ -38,7 +38,7 @@ export const updateCard=async (req,res) => {
 }
 export const deleteCard=async (req,res) => {
     try{
-        await cardModel.findByIdAndUpdate(req.params.id);
+        await cardModel.findByIdAndDelete(req.params.id);
         return res.json({message:"Card deleted!"});
     }
     catch(err){
