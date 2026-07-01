@@ -8,7 +8,7 @@ const cardSchema= mongoose.Schema({
         required: true
     },
 
-    title:{
+    description:{
         type: String,
         trim: true,
         default: ''
@@ -21,7 +21,7 @@ const cardSchema= mongoose.Schema({
     },
     
     order:{
-        type: "Number",
+        type: Number,
         required: true
     }
 },{timestamps: true});

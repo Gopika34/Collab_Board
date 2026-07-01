@@ -15,7 +15,7 @@ const listSchema= mongoose.Schema({
     },
     
     order:{
-        type: "Number",
+        type: Number,
         required: true
     }
 },{timestamps: true});
