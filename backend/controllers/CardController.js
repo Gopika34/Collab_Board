@@ -25,8 +25,10 @@ export const fetchCard=async (req,res) => {
 }
 export const updateCard=async (req,res) => {
     try{
-        const card= await cardModel.findByIdAndUpdate(
-            req.params.id,
+        const card= await cardModel.findOneAndUpdate(
+            {
+                _id:req.params.id,git
+            },
             req.body,
             {new:true}
         );
@@ -38,7 +40,7 @@ export const updateCard=async (req,res) => {
 }
 export const deleteCard=async (req,res) => {
     try{
-        await cardModel.findByIdAndDelete(req.params.id);
+        await cardModel.findOneAndDelete({_id: req.params.id});
         return res.json({message:"Card deleted!"});
     }
     catch(err){

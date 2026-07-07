@@ -26,8 +26,11 @@ export const fetchBoard=async(req,res)=>{
 
 export const getBoardById=async(req,res)=>{
     try{
-        const board= await boardModel.findById(req.params.id);
-        if(!board) return res.status(404).json({message:"Board not found"})
+        const board= await boardModel.findOne({
+            _id:req.params.id,
+            members: req.user._id
+        });
+        if(!board) return res.status(403).json({message:"Board not found"})
         return res.status(200).json(board);
     }
     catch(err){
