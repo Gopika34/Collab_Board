@@ -18,7 +18,7 @@ app.use(express.json());
 
 app.use('/api/auth',authRoutes);
 app.use('/api/boards',AuthMiddleware,boardRoutes);
-app.use('/api/list',AuthMiddleware,listRoutes);
+app.use('/api/lists',AuthMiddleware,listRoutes);
 app.use('/api/card',AuthMiddleware,cardRoutes);
 
 const port = process.env.PORT;
