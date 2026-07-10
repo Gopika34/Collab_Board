@@ -27,7 +27,7 @@ export const updateCard=async (req,res) => {
     try{
         const card= await cardModel.findOneAndUpdate(
             {
-                _id:req.params.id,git
+                _id:req.params.id
             },
             req.body,
             {new:true}

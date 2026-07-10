@@ -19,7 +19,7 @@ app.use(express.json());
 app.use('/api/auth',authRoutes);
 app.use('/api/boards',AuthMiddleware,boardRoutes);
 app.use('/api/lists',AuthMiddleware,listRoutes);
-app.use('/api/card',AuthMiddleware,cardRoutes);
+app.use('/api/cards',AuthMiddleware,cardRoutes);
 
 const port = process.env.PORT;
 app.listen(port,()=>{

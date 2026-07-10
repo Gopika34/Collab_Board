@@ -17,14 +17,16 @@ export const verifyBoardAccess =async(req,res,next)=>{
     }
 }
 
-export const verifyBoardAccessForList =async(req,res,next)=>{
+export const verifyBoardAccessForList = async(req,res,next)=>{
     try{
-        const board= await boardModel.findOne({
-            _id:req.params.boardId,
+        const boardId = req.params.boardId || req.body.boardId;   // <-- check both
+
+        const board = await boardModel.findOne({
+            _id: boardId,
             members: req.user._id
         });
         if(!board) return res.status(403).json({message: "Not authorized"});
-        req.board= board;
+        req.board = board;
         next();
     }
     catch(err){
@@ -52,19 +54,21 @@ export const verifyListAccess =async(req,res,next)=>{
     }
 }
 
-export const verifyBoardAccessForCard =async(req,res,next)=>{
+export const verifyBoardAccessForCard = async(req,res,next)=>{
     try{
-        const list= await boardModel.findOne(req.params.listId);
+        const listId = req.params.listId || req.body.listId; 
+
+        const list = await listModel.findById(listId);
         if(!list) return res.status(404).json({message: "Couldn't find the list"});
-        
-        const board= await boardModel.findById({
+
+        const board = await boardModel.findOne({
             _id: list.boardId,
             members: req.user._id
         });
         if(!board) return res.status(403).json({message: "Not Authorized"});
 
-        req.list= list;
-        req.board=board;
+        req.list = list;
+        req.board = board;
         next();
     }
     catch(err){
