@@ -2,6 +2,35 @@ import { boardModel } from "../models/Board.js";
 import { listModel } from "../models/List.js";
 import { cardModel } from "../models/Card.js";
 
+export const verifyBoardOwnerAccess =async(req,res,next)=>{
+    try{
+        const board= await boardModel.findOne({
+            _id: req.params.id,
+            owner: req.user._id
+        });
+        if(!board) return res.status(403).json({message: "Only Board Owner is Authorized"});
+        req.board= board;
+        next();
+    }
+    catch(err){
+        return res.status(500).json({message: err.message});
+    }
+}
+export const verifyBoardAccess =async(req,res,next)=>{
+    try{
+        const board= await boardModel.findOne({
+            _id: req.params.id,
+            members: req.user._id
+        });
+        if(!board) return res.status(404).json({message: "Couldn't find the board"});
+        req.board= board;
+        next();
+    }
+    catch(err){
+        return res.status(500).json({message: err.message});
+    }
+}
+
 export const verifyBoardAccess =async(req,res,next)=>{
     try{
         const board= await boardModel.findOne({
