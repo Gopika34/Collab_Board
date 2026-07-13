@@ -1,10 +1,7 @@
 import axios from "axios";
-import useNavigate from "react-router-dom";
-
-const navigate= useNavigate();
 
 const api= axios.create({
-    baseUrl: import.meta.env.VITE_API_URL
+    baseURL: import.meta.env.VITE_API_URL
 });
 
 api.interceptors.request.use((config)=>{
@@ -20,13 +17,11 @@ api.interceptors.request.use((config)=>{
 );
 
 api.interceptors.response.use(
-    (response)=>{
-        return response;
-    },
+    (response)=>response,
     (error)=>{
-        if(error.response && error.response.status==401){
+        if(error.response && error.response.status===401){
             localStorage.removeItem("token");
-            navigate('/login');
+            window.location.href = "/login";
         }
         return Promise.reject(error);
     }
