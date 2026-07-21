@@ -17,9 +17,10 @@ const LoginPage = () => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-
+        
         if (!email || !password) {
             setError("Please fill in all fields");
+            setIsLoading(false);
             return;
         }
 
