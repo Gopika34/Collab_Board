@@ -9,6 +9,18 @@ export const createBoard=async(req,res)=>{
             owner: req.user._id,
             members:[req.user._id]
         });
+
+        const defaultLists=['Todo','Doing','Done'];
+        await Promise.all(
+            defaultLists.map((title,index)=>
+                listModel.create({
+                    title,
+                    boardId: board._id,
+                    order: index
+                })
+            )
+        );
+
         return res.status(201).json(board);
     }
     catch(err){
