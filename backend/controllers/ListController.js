@@ -4,11 +4,11 @@ import {cardModel} from "../models/Card.js";
 export const createList=async (req,res) => {
     try{
 
-        const count= await listModel.countDocuments({boardId: req.body.boardId});
+        const count= await listModel.countDocuments({boardId: req.board._id});
 
         const list= await listModel.create({
             title: req.body.title,
-            boardId: req.body.boardId,
+            boardId: req.board._id,
             order: count
         });
         return res.status(201).json(list);
@@ -20,7 +20,8 @@ export const createList=async (req,res) => {
 
 export const fetchList=async (req,res) => {
     try{
-        const lists= await listModel.find({boardId: req.params.boardId});
+        // const lists= await listModel.find({boardId: req.params.boardId});
+        const lists= await listModel.find({boardId: req.board._id});
         return res.json(lists);
     }
     catch(err){
@@ -30,12 +31,15 @@ export const fetchList=async (req,res) => {
 
 export const updateList=async(req,res) => {
     try{
-        const list= await listModel.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            {new:true}
-        );
-        return res.json(list);
+        // const list= await listModel.findByIdAndUpdate(
+        //     req.params.id,
+        //     req.body,
+        //     {new:true}
+        // );
+
+        Object.assign(req.list,req.body);
+        await req.list.save();
+        return res.json(req.list);
     }
     catch(err){
         return res.status(500).json({message:err.message});
@@ -44,8 +48,10 @@ export const updateList=async(req,res) => {
 
 export const deleteList=async (req,res) => {
     try{
-        await cardModel.deleteMany({listId: req.params.id});
-        await listModel.findByIdAndDelete(req.params.id);
+        // await cardModel.deleteMany({listId: req.params.id});
+        // await listModel.findByIdAndDelete(req.params.id);
+
+        await req.list.deleteOne();
         return res.json({message:"List deleted!"});
     }
     catch(err){

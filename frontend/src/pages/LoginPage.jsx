@@ -41,20 +41,20 @@ const LoginPage = () => {
         }
     }
     return (
-        <div className='min-h-screen flex items-center justify-center bg-gray-100'>
+        <div className='min-h-screen flex items-center justify-center bg-background'>
             <form onSubmit={handleLogin}
-                className='bg-white p-8 rounded-lg shadow-md w-80 flex flex-col gap-4'
+                className='bg-surface border border-border p-8 rounded-lg shadow-md w-80 flex flex-col gap-4'
             >
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
-                    placeholder='Enter valid email' className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                    placeholder='Enter valid email' className="border border-border bg-surface-elevated text-text-primary placeholder-text-muted rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40" />
                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
-                    placeholder='Enter valid password' className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                    placeholder='Enter valid password' className="border border-border bg-surface-elevated text-text-primary placeholder-text-muted rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent/40" />
                 <button type='submit' disabled={isLoading}
-                    className="bg-blue-600 text-white font-medium py-2 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    className="bg-accent text-text-primary font-medium py-2 rounded hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                     {isLoading ? "Loading..." : "Login"}
                 </button>
-                <p className="text-sm text-gray-500 text-center">No account? create one <Link to="/signup" className="text-blue-600 hover:underline">Sign Up</Link></p>
-                {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
+                <p className="text-sm text-text-secondary text-center">No account? create one <Link to="/signup" className="text-accent hover:text-accent-hover hover:underline">Sign Up</Link></p>
+                {error && <p className="text-danger text-sm mt-2 text-center">{error}</p>}
             </form>
         </div>
     )

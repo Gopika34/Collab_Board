@@ -59,13 +59,11 @@ export const verifyListAccess =async(req,res,next)=>{
         });
         if(!board) return res.status(403).json({message: "Not Authorized"});
 
-        if(req.body.boardId && String(req.body.boardId) !== String(list.boardId)){
-            const destBoard = await boardModel.findOne({
-                _id: req.body.boardId,
-                members: req.user._id
-            });
-            if(!destBoard) return res.status(403).json({message: "Not authorized for destination board"});
-        }
+        // const destBoard = await boardModel.findOne({
+        //     _id: list.boardId,
+        //     members: req.user._id
+        // });
+        // if(!destBoard) return res.status(403).json({message: "Not authorized for destination board"});
 
         
         req.list=list;
@@ -113,7 +111,7 @@ export const verifyCardAccess = async (req, res, next) => {
         });
         if (!currentBoard) return res.status(403).json({ message: "Not authorized" });
 
-        if (req.body.listId && String(req.body.listId) !== String(card.listId)) {
+        if (req.body?.listId && String(req.body.listId) !== String(card.listId)) {
             const destList = await listModel.findById(req.body.listId);
             if (!destList) return res.status(404).json({ message: "Destination list not found" });
 
@@ -127,6 +125,8 @@ export const verifyCardAccess = async (req, res, next) => {
         }
 
         req.card = card;
+        req.list = currentList;
+        req.board = currentBoard;
         next();
     } catch (err) {
         return res.status(500).json({ message: err.message });

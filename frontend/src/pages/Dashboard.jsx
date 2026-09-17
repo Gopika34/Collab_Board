@@ -36,18 +36,16 @@ const Dashboard = () => {
     }, []);
 
     if (error) {
-        return <p className='text-center text-red-400 text-md font-medium'>{error}</p>
+        return <p className='text-center text-danger text-md font-medium'>{error}</p>
     }
 
     if (loading) {
         return (
-            <div className='fixed inset-0 bg-white/60 backdrop-blur-md flex flex-col justify-center items-center z-50 animate-fade-in'>
-                {/* <div className='p-6 rounded-2xl bg-white/80 shadow-xl border border-slate-100 flex flex-col items-center justify-center gap-4'> */}
-                <FourSquare color="#2563eb" size="small" text="" />
-                <span className='text-sm font-semibold tracking-wide text-slate-600 uppercase mt-2 animate-pulse'>
+            <div className='fixed inset-0 bg-background/80 backdrop-blur-md flex flex-col justify-center items-center z-50 animate-fade-in'>
+                <FourSquare color="#8b5cf6" size="small" text="" />
+                <span className='text-sm font-semibold tracking-wide text-text-secondary uppercase mt-2 animate-pulse'>
                     Loading Data...
                 </span>
-                {/* </div> */}
             </div>
         )
     }
@@ -78,7 +76,7 @@ const Dashboard = () => {
     }
 
     return (
-        <div className='min-h-screen bg-gray-100'>
+        <div className='min-h-screen bg-background'>
             <Navbar />
             <div className="container mx-auto px-6 py-6">
                 <WelcomeSection onOpen={openModal} />

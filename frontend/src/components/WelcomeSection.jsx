@@ -6,40 +6,30 @@ const WelcomeSection = ({onOpen}) => {
     const { user } = useAuth();
 
     return (
-        // <div className='w-full bg-slate-300 px-8 py-6 rounded-3xl shadow-md hover:shadow-xl'>
-        //     <div className='mt-8 flex flex-col md:flex-row gap-3 justify-center '>
-        //         <div className='flex flex-col gap-3 justify-center'>
-        //             <h2 className='text-4xl font-bold text-gray-900'>{greetings}</h2>
-        //             <p className='text-md font-normal text-gray-600'>Manage your boards, organize your projects, and keep track of your
-        //     tasks in one place.</p>
-        //         </div>
-        //         <button className='rounded-lg p-4 flex items-center gap-1  border border-blue-800 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-all duration-200'>
-        //             <FaSquarePlus className="text-lg" />
-        //             <span>Create Board</span>
-        //         </button>
-        //     </div>
-        // </div>
-        <section className="w-full rounded-3xl bg-gradient-to-r from-purple-300 to-rose-300 p-8 shadow-lg">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <section className="w-full rounded-3xl bg-surface border border-border p-8 shadow-lg relative overflow-hidden">
+            {/* subtle accent glow, kept to one corner so violet stays an accent, not a wash */}
+            <div className="pointer-events-none absolute -top-24 -right-24 w-64 h-64 rounded-full bg-accent-soft blur-3xl opacity-40" />
+
+            <div className="relative flex flex-col md:flex-row items-center justify-between gap-6">
 
                 <div className="space-y-3">
-                    <h1 className="text-4xl font-bold text-white">
+                    <h1 className="text-4xl font-bold text-text-primary">
                         Welcome Back,
                     </h1>
-                    <h1 className="text-3xl font-bold text-white">
+                    <h1 className="text-3xl font-bold text-accent">
                         {user?.userName || "Guest"} 👋
                     </h1>
 
-                    <p className="max-w-lg text-white/90">
+                    <p className="max-w-lg text-text-secondary">
                         Manage your boards, organize your projects, and keep
                         track of your tasks in one place.
                     </p>
                 </div>
 
 
-                <button className="flex items-center gap-2 rounded-xl bg-white px-6 py-3 font-semibold
-                    text-blue-600 shadow-md transition-all duration-300 
-                    hover:scale-105 active:scale-95" 
+                <button className="flex items-center gap-2 rounded-xl bg-accent px-6 py-3 font-semibold
+                    text-text-primary shadow-md transition-all duration-300
+                    hover:bg-accent-hover hover:scale-105 active:scale-95"
                     onClick={onOpen}
                 >
                     <FaSquarePlus className="text-lg" />

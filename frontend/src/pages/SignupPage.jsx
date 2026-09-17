@@ -41,24 +41,24 @@ const SignupPage = () => {
 
     const inputStyle ="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-300";
     return (
-        <div className='min-h-screen flex justify-center items-center bg-gray-100'>
+        <div className='min-h-screen flex justify-center items-center bg-background'>
             <form onSubmit={handleSignup}
-                className='bg-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-all w-full max-w-md flex flex-col gap-4'
+                className='bg-surface border border-border p-8 rounded-xl shadow-lg hover:shadow-xl transition-all w-full max-w-md flex flex-col gap-4'
             >
-                <h3 className='text-3xl font-bold text-center text-slate-900 mb-2'>Create Account</h3>
-                <p className='text-lg font-medium text-center text-slate-700 mb-2'>Manage boards, tasks and projects in one place.</p>
-                <label htmlFor="userName" className='text-sm font-medium'>Username</label>
+                <h3 className='text-3xl font-bold text-center text-text-primary mb-2'>Create Account</h3>
+                <p className='text-lg font-medium text-center text-text-secondary mb-2'>Manage boards, tasks and projects in one place.</p>
+                <label htmlFor="userName" className='text-sm font-medium text-text-secondary'>Username</label>
                 <input className={inputStyle} id='userName' type="text" value={userName} onChange={(e)=>setUserName(e.target.value)} placeholder='Enter username'/>
-                <label htmlFor="email" className='text-sm font-medium'>Email</label>
+                <label htmlFor="email" className='text-sm font-medium text-text-secondary'>Email</label>
                 <input className={inputStyle} id='email' type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder='Enter email'/>
-                <label htmlFor="password" className='text-sm font-medium'>Password</label>
+                <label htmlFor="password" className='text-sm font-medium text-text-secondary'>Password</label>
                 <input className={inputStyle} id='password' type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder='Enter password'/>
-                <button className='bg-blue-600 text-white font-medium py-3 rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200'
+                <button className='bg-accent text-text-primary font-medium py-3 rounded-xl hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200'
                 type='submit' disabled={isLoading}>{isLoading ? "Loading..." : "Create Account"}</button>
-                <p className='text-sm text-gray-500 text-center'>Already have an account? <Link to='/login' className='text-blue-600 text-sm hover:underline'>Login</Link></p>
+                <p className='text-sm text-text-secondary text-center'>Already have an account? <Link to='/login' className='text-accent text-sm hover:text-accent-hover hover:underline'>Login</Link></p>
                 {error && 
-                <div className='bg-red-50 border border-red-200 rounded-xl p-3 flex justify-center items-center'>
-                    <p className='text-red-600 text-sm text-center'>{error}</p>
+                <div className='bg-danger/10 border border-danger/30 rounded-xl p-3 flex justify-center items-center'>
+                    <p className='text-danger text-sm text-center'>{error}</p>
                 </div>
                 }
             </form>

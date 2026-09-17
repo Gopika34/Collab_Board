@@ -29,9 +29,7 @@ function App() {
         }/>
         <Route path='/board/:id' element={  
           <ProtectedRoutes>
-            <BoardProvider>
-              <BoardPage/>
-            </BoardProvider>
+            <BoardPage />
           </ProtectedRoutes>}/>
       </Routes>
     </Router>
