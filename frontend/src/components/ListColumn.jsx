@@ -9,6 +9,7 @@ import EditListModal from './EditListModal.jsx';
 const ListColumn = ({ list, listTitle, setListTitle, cards, onAddCard, onDeleteList, onDeleteCard, onEditList, onEditCard }) => {
     const [showCardModal, setShowCardModal] = useState(false);
     const [editListModal, setEditListModal] = useState(false);
+    const [editCardModal, setEditCardModal] = useState(false);
     const [cardTitle, setCardTitle] = useState('');
     const [cardDescription, setCardDescription] = useState('');
 
@@ -70,7 +71,17 @@ const ListColumn = ({ list, listTitle, setListTitle, cards, onAddCard, onDeleteL
 
             <div className='flex flex-col gap-2 px-2 pb-2 overflow-y-auto'>
                 {cards.map((card) => (
-                    <Card key={card._id} card={card} onDelete={onDeleteCard} listId={list._id}/>
+                    <Card key={card._id} 
+                        card={card} 
+                        onDelete={onDeleteCard}
+                        onEdit={onEditCard} 
+                        cardTitle={cardTitle} 
+                        setCardTitle={setCardTitle} 
+                        cardDescription={ cardDescription}  
+                        setCardDescription={setCardDescription}
+                        editCardModal={editCardModal} 
+                        setEditCardModal={setEditCardModal}
+                        listId={list._id}/>
                 ))}
             </div>
 

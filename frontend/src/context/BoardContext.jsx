@@ -156,10 +156,10 @@ export const BoardProvider = ({ children, boardId }) => {
     }, [lists]);
 
 
-    const editCard = async (cardId, listId, title) => {
+    const editCard = async (cardId, listId, title,description) => {
         try {
             setError("")
-            const res = await updateCards(cardId, { title });
+            const res = await updateCards(cardId, { title,description });
             setCardsByListId(prev => ({
                 ...prev,
                 [listId]: prev[listId].map(card =>
