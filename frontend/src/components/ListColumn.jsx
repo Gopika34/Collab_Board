@@ -5,6 +5,8 @@ import Card from './Card.jsx';
 import CreateCardModal from './CreateCardModal.jsx';
 import { MdEdit } from "react-icons/md";
 import EditListModal from './EditListModal.jsx';
+import SortableCard from "./SortableCard";
+import { useDroppable } from "@dnd-kit/react";
 
 const ListColumn = ({ list, listTitle, setListTitle, cards, onAddCard, onDeleteList, onDeleteCard, onEditList, onEditCard }) => {
     const [showCardModal, setShowCardModal] = useState(false);
@@ -22,6 +24,12 @@ const ListColumn = ({ list, listTitle, setListTitle, cards, onAddCard, onDeleteL
         setCardDescription('');
         setShowCardModal(false);
     }
+
+    const { ref: cardsRef } = useDroppable({
+        id: list._id,
+        type: "column",
+        accept: "card",
+    });
 
     const openCardModal = () => setShowCardModal(true);
     const closeCardModal = () => {
@@ -69,19 +77,26 @@ const ListColumn = ({ list, listTitle, setListTitle, cards, onAddCard, onDeleteL
                 </div>
             </div>
 
-            <div className='flex flex-col gap-2 px-2 pb-2 overflow-y-auto'>
-                {cards.map((card) => (
-                    <Card key={card._id} 
-                        card={card} 
-                        onDelete={onDeleteCard}
-                        onEdit={onEditCard} 
-                        cardTitle={cardTitle} 
-                        setCardTitle={setCardTitle} 
-                        cardDescription={ cardDescription}  
-                        setCardDescription={setCardDescription}
-                        editCardModal={editCardModal} 
-                        setEditCardModal={setEditCardModal}
-                        listId={list._id}/>
+            <div ref={cardsRef} className='flex flex-col gap-2 px-2 pb-2 overflow-y-auto'>
+                {cards.map((card, index) => (
+                    <SortableCard
+                        key={card._id}
+                        card={card}
+                        index={index}
+                        listId={list._id}
+                    >
+                        <Card
+                            card={card}
+                            onDelete={onDeleteCard}
+                            onEdit={onEditCard}
+                            cardTitle={cardTitle}
+                            setCardTitle={setCardTitle}
+                            cardDescription={cardDescription}
+                            setCardDescription={setCardDescription}
+                            editCardModal={editCardModal}
+                            setEditCardModal={setEditCardModal}
+                            listId={list._id} />
+                    </SortableCard>
                 ))}
             </div>
 
