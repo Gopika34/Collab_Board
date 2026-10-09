@@ -30,7 +30,7 @@ export const login =async(req,res)=>{
         return res.status(400).json({ message: "Email and password are required" });
     }
 
-    const checkUser= await userModel.findOne({email: email.toLowerCase().trim()}).select('+password');;
+    const checkUser= await userModel.findOne({email: email.toLowerCase().trim()}).select('+password');
     if(!checkUser) return res.status(401).json({message:"Invalid credentials"});
 
     if (!checkUser.password) {

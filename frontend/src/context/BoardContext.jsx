@@ -242,7 +242,7 @@ export const BoardProvider = ({ children, boardId }) => {
             editCard,
             removeCard,
             handleDragMove,
-            handleDragMove
+            handleDragEnd
         }
         }>{children}
         </BoardContext.Provider>
