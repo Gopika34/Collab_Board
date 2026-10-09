@@ -102,21 +102,6 @@ cd frontend
 npm install
 ```
 
-### Environment variables
-
-**`backend/.env`**
-```env
-MONGO_URI=mongodb+srv://<user>:<password>@cluster.mongodb.net/collabboard
-JWT_SECRET=your_super_secret_key
-CLIENT_URL=http://localhost:5173
-PORT=5000
-```
-
-**`frontend/.env`**
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
-```
 
 ### Run locally
 
