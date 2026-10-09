@@ -3,6 +3,7 @@ import { getLists, createList as createListApi, deleteList as deleteListApi, upd
 import { getBoard } from '../api/boards';
 import { getCards as getCardApi, createCard, updateCards, deleteCards } from "../api/cards";
 import { move } from "@dnd-kit/helpers";
+import { socket } from "../socket/socket";
 
 const BoardContext = createContext();
 
@@ -12,6 +13,121 @@ export const BoardProvider = ({ children, boardId }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [cardsByListId, setCardsByListId] = useState({});
+
+
+    // ─── Socket.IO: connect to board room & listen for real-time updates ───
+    useEffect(() => {
+        if (!boardId) return;
+
+        const handleConnect = () => {
+            socket.emit(
+                "board:join",
+                { boardId },
+                (response) => {
+                    if (response?.ok) {
+                        console.log("Joined Socket.IO board room:", response.boardId);
+                    } else {
+                        console.error("Could not join board room:", response?.message);
+                    }
+                }
+            );
+        };
+
+        // ── Incoming real-time event handlers ──────────────────────────────
+
+        const handleListCreated = ({ list }) => {
+            setLists(prev => {
+                // Avoid duplicates — the creator already applied the change optimistically via REST response
+                if (prev.some(l => l._id === list._id)) return prev;
+                return [...prev, list];
+            });
+            // Initialise an empty card bucket for the new list
+            setCardsByListId(prev => ({
+                ...prev,
+                [list._id]: prev[list._id] ?? []
+            }));
+        };
+
+        const handleListUpdated = ({ list }) => {
+            setLists(prev =>
+                prev.map(l => l._id === list._id ? list : l)
+            );
+        };
+
+        const handleListDeleted = ({ listId }) => {
+            setLists(prev => prev.filter(l => l._id !== listId));
+            setCardsByListId(prev => {
+                const updated = { ...prev };
+                delete updated[listId];
+                return updated;
+            });
+        };
+
+        const handleCardCreated = ({ card, listId }) => {
+            const cardWithId = { ...card, id: card._id };
+            setCardsByListId(prev => {
+                const existing = prev[listId] || [];
+                if (existing.some(c => c._id === card._id)) return prev;
+                return { ...prev, [listId]: [...existing, cardWithId] };
+            });
+        };
+
+        const handleCardUpdated = ({ card, listId }) => {
+            const cardWithId = { ...card, id: card._id };
+            setCardsByListId(prev => {
+                // Card might have moved lists — check both old and new listId
+                const updated = { ...prev };
+                // Remove from any list that currently holds it
+                for (const lid in updated) {
+                    updated[lid] = updated[lid].filter(c => c._id !== card._id);
+                }
+                // Add/replace in the correct list
+                updated[listId] = [...(updated[listId] || []), cardWithId].sort(
+                    (a, b) => a.order - b.order
+                );
+                return updated;
+            });
+        };
+
+        const handleCardDeleted = ({ cardId, listId }) => {
+            setCardsByListId(prev => ({
+                ...prev,
+                [listId]: (prev[listId] || []).filter(c => c._id !== cardId)
+            }));
+        };
+
+        // Register all listeners
+        socket.on("list:created", handleListCreated);
+        socket.on("list:updated", handleListUpdated);
+        socket.on("list:deleted", handleListDeleted);
+        socket.on("card:created", handleCardCreated);
+        socket.on("card:updated", handleCardUpdated);
+        socket.on("card:deleted", handleCardDeleted);
+
+        socket.on("connect", handleConnect);
+        socket.connect();
+
+        // Handles an already-connected socket (e.g. hot reload)
+        if (socket.connected) {
+            handleConnect();
+        }
+
+        return () => {
+            socket.off("connect", handleConnect);
+            socket.off("list:created", handleListCreated);
+            socket.off("list:updated", handleListUpdated);
+            socket.off("list:deleted", handleListDeleted);
+            socket.off("card:created", handleCardCreated);
+            socket.off("card:updated", handleCardUpdated);
+            socket.off("card:deleted", handleCardDeleted);
+
+            if (socket.connected) {
+                socket.emit("board:leave", { boardId });
+            }
+
+            socket.disconnect();
+        };
+    }, [boardId]);
 
     const normalizeCardOrders = (cards) => {
         return cards.map((card, index) => ({
@@ -39,9 +155,7 @@ export const BoardProvider = ({ children, boardId }) => {
     const fetchListsByBoardId = async () => {
         try {
             setError("");
-            // console.log("fetching lists for boardId:", boardId);
             const res = await getLists(boardId);
-            // console.log("lists from API:", res.data);
             setLists(res.data);
         }
         catch (err) {
@@ -59,7 +173,11 @@ export const BoardProvider = ({ children, boardId }) => {
                 : Math.max(...lists.map(list => list.order)) + 1;
 
             const res = await createListApi({ title, boardId, order: nextOrder });
-            setLists(prev => [...prev, res.data]);
+            setLists(prev => {
+                // Guard against duplicates from socket echo
+                if (prev.some(l => l._id === res.data._id)) return prev;
+                return [...prev, res.data];
+            });
         }
         catch (err) {
             setError(err.response?.data?.message || "Failed to create list!");
@@ -134,18 +252,20 @@ export const BoardProvider = ({ children, boardId }) => {
                 order: nextOrder
             });
 
-            setCardsByListId(prev => ({
-                ...prev,
-                [listId]: [
-                    ...(prev[listId] || []),
-                    res.data
-                ]
-            }));
+            setCardsByListId(prev => {
+                const existing = prev[listId] || [];
+                // Guard against duplicates from socket echo
+                if (existing.some(c => c._id === res.data._id)) return prev;
+                return {
+                    ...prev,
+                    [listId]: [...existing, res.data]
+                };
+            });
 
             return true;
         }
         catch (err) {
-            setError(err.response?.data?.message || "Failed to create cards!");
+            setError(err.response?.data?.message || "Failed to create card!");
             return false;
         }
     }
@@ -178,7 +298,7 @@ export const BoardProvider = ({ children, boardId }) => {
             }));
         }
         catch (err) {
-            setError(err.response?.data?.message || "Failed to update cards!");
+            setError(err.response?.data?.message || "Failed to update card!");
         }
     }
 
@@ -194,7 +314,7 @@ export const BoardProvider = ({ children, boardId }) => {
             }));
         }
         catch (err) {
-            setError(err.response?.data?.message || "Failed to delete cards!");
+            setError(err.response?.data?.message || "Failed to delete card!");
         }
     };
 
@@ -208,8 +328,7 @@ export const BoardProvider = ({ children, boardId }) => {
         const { source } = event.operation;
         if (!source) return;
 
-        // the list(s) touched by this drag — could be one list (reorder)
-        // or two (moved between lists)
+        // The list(s) touched by this drag — could be one (reorder) or two (cross-list move)
         const listIds = [...new Set([source.initialGroup, source.group])].filter(Boolean);
 
         try {
@@ -243,14 +362,12 @@ export const BoardProvider = ({ children, boardId }) => {
             removeCard,
             handleDragMove,
             handleDragEnd
-        }
-        }>{children}
+        }}
+        >{children}
         </BoardContext.Provider>
     )
 }
 
 export const useBoard = () => {
-    return useContext(BoardContext);
+    return useContext(BoardContext)
 }
-
-

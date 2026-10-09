@@ -1,7 +1,8 @@
-import {cardModel} from "../models/Card.js";
+import { cardModel } from "../models/Card.js";
+import { emitToBoard } from "../socket/socket.js";
 
-export const createCard=async (req,res) => {
-    try{
+export const createCard = async (req, res, next) => {
+    try {
         const { title, description, order } = req.body;
 
         const card = await cardModel.create({
@@ -10,57 +11,60 @@ export const createCard=async (req,res) => {
             listId: req.list._id,
             order
         });
+
+        // Real-time: notify all users on this board
+        emitToBoard(req.board._id, "card:created", {
+            card,
+            listId: String(req.list._id),
+            boardId: String(req.board._id)
+        });
+
         return res.status(201).json(card);
+    } catch (err) {
+        next(err);
     }
-    catch(err){
-        return res.status(500).json({message:err.message});
-    }
-}
+};
 
-export const fetchCard=async (req,res) => {
-    try{
-        // const cards = await cardModel.find({listId:req.params.listId});
-        const cards = await cardModel.find({listId:req.list._id});
+export const fetchCard = async (req, res, next) => {
+    try {
+        const cards = await cardModel.find({ listId: req.list._id });
         return res.json(cards);
+    } catch (err) {
+        next(err);
     }
-    catch(err){
-        return res.status(500).json({message:err.message});
-    }
-}
+};
 
-export const updateCard=async (req,res) => {
-    try{
-        // const card= await cardModel.findOneAndUpdate(
-        //     {
-        //         _id:req.params.id
-        //     },
-        //     req.body,
-        //     {new:true}
-        // );
-        // return res.json(card);
-
-        Object.assign(req.card,req.body);
+export const updateCard = async (req, res, next) => {
+    try {
+        Object.assign(req.card, req.body);
         await req.card.save();
-        return res.json(req.card);
-    }
-    catch(err){
-        return res.status(500).json({message:err.message});
-    }
-}
 
-export const deleteCard=async (req,res) => {
-    try{
-        // const card=await cardModel.findOneAndDelete({_id: req.params.id});
-        // if (!card) {
-        //     return res.status(404).json({
-        //         message: "Card not found!"
-        //     });
-        // }
+        // Real-time: notify all users on this board
+        emitToBoard(req.board._id, "card:updated", {
+            card: req.card,
+            listId: String(req.card.listId),
+            boardId: String(req.board._id)
+        });
+
+        return res.json(req.card);
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const deleteCard = async (req, res, next) => {
+    try {
+        const cardId = String(req.card._id);
+        const listId = String(req.card.listId);
+        const boardId = String(req.board._id);
 
         await req.card.deleteOne();
-        return res.json({message:"Card deleted!"});
+
+        // Real-time: notify all users on this board
+        emitToBoard(boardId, "card:deleted", { cardId, listId, boardId });
+
+        return res.json({ message: "Card deleted!" });
+    } catch (err) {
+        next(err);
     }
-    catch(err){
-        return res.status(500).json({message:err.message});
-    }
-}
+};
