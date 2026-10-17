@@ -1,16 +1,42 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import { userModel } from "../models/User.js";
 
-export const AuthMiddleware=async(req,res,next)=>{
-    const token= req.headers.authorization?.split(' ')[1]
-    if(!token) return res.status(401).json({message:"Token not found"});
+export const AuthMiddleware = async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
 
-    try{
-        const verifiedToken= await jwt.verify(token,process.env.JWT_SECRET);
-        req.user=verifiedToken;
+        if (!authHeader?.startsWith("Bearer ")) {
+            return res.status(401).json({
+                message: "Authentication required"
+            });
+        }
+
+        const token = authHeader.split(" ")[1];
+
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
+
+        const user = await userModel.findById(decoded._id);
+
+        if (!user) {
+            return res.status(401).json({
+                message: "User account not found"
+            });
+        }
+
+        req.user = {
+            _id: String(user._id),
+            userName: user.userName,
+            email: user.email,
+            role: user.role
+        };
+
         next();
-
+    } catch (error) {
+        return res.status(401).json({
+            message: "Invalid or expired token"
+        });
     }
-    catch(err){
-        return res.status(403).json({message: err.message})
-    }
-}
+};

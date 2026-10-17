@@ -12,10 +12,25 @@ export const createListSchema = z.object({
         .regex(/^[a-f\d]{24}$/i, "Invalid boardId"),
 });
 
+
 export const updateListSchema = z.object({
     title: z
-        .string({ required_error: "List title is required" })
+        .string()
         .min(1, "List title cannot be empty")
         .max(100, "List title must be at most 100 characters")
-        .trim(),
-});
+        .trim()
+        .optional(),
+
+    order: z
+        .number()
+        .int()
+        .min(0, "Order cannot be negative")
+        .optional()
+}).refine(
+    (data) =>
+        data.title !== undefined ||
+        data.order !== undefined,
+    {
+        message: "Provide a title or order to update"
+    }
+);

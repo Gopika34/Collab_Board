@@ -5,8 +5,11 @@ import boardRoutes from './routes/boardRoutes.js';
 import listRoutes from './routes/listRoutes.js';
 import cardRoutes from './routes/cardRoutes.js';
 import { AuthMiddleware } from "./middleware/AuthMiddleware.js";
+import adminRoutes from "./routes/adminRoutes.js";
 
 const app = express();
+
+app.use("/api/admin", AuthMiddleware, adminRoutes);
 
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
 app.use(express.json());

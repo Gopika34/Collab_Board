@@ -2,7 +2,8 @@ import { useState } from "react";
 import { MdAddToPhotos } from "react-icons/md";
 import CreateListModal from "./CreateListModal";
 import { useBoard } from "../context/BoardContext";
-import ListColumn from "./ListColumn";
+// import ListColumn from "./ListColumn";
+import SortableList from "./SortableList";
 import { DragDropProvider } from "@dnd-kit/react";
 // import { isSortable } from "@dnd-kit/react/sortable";
 
@@ -34,23 +35,21 @@ const ListsContainer = () => {
         >
             <div className='w-full flex gap-3'>
 
-                {
-                    lists.map((list) => (
-                        <ListColumn
-                            key={list._id}
-                            list={list}
-                            listTitle={listTitle}
-                            setListTitle={setListTitle}
-                            cards={cardsByListId[list._id] || []}
-                            onAddCard={addCard}
-                            onDeleteList={removeList}
-                            onDeleteCard={removeCard}
-                            // onDeleteCard={(cardId) => removeCard(cardId, list._id)}
-                            onEditList={editList}
-                            onEditCard={editCard}
-                        />
-                    ))
-                }
+                {lists.map((list, index) => (
+                    <SortableList
+                        key={list._id}
+                        list={list}
+                        index={index}
+                        listTitle={listTitle}
+                        setListTitle={setListTitle}
+                        cards={cardsByListId[list._id] || []}
+                        onAddCard={addCard}
+                        onDeleteList={removeList}
+                        onDeleteCard={removeCard}
+                        onEditList={editList}
+                        onEditCard={editCard}
+                    />
+                ))}
                 <button className='bg-accent p-3 flex items-center gap-1 text-text-primary rounded-xl shadow-xl hover:bg-accent-hover transition-colors'
                     onClick={openListModal}
                 >

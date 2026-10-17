@@ -13,6 +13,7 @@ export const BoardProvider = ({ children, boardId }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [cardsByListId, setCardsByListId] = useState({});
+    const [activities, setActivities] = useState([]);
 
 
     // ─── Socket.IO: connect to board room & listen for real-time updates ───
@@ -96,6 +97,16 @@ export const BoardProvider = ({ children, boardId }) => {
             }));
         };
 
+        const handleActivityCreated = ({ activity }) => {
+            setActivities(prev => {
+                if (prev.some(item => item._id === activity._id)) {
+                    return prev;
+                }
+
+                return [activity, ...prev].slice(0, 50);
+            });
+        };
+
         // Register all listeners
         socket.on("list:created", handleListCreated);
         socket.on("list:updated", handleListUpdated);
@@ -103,6 +114,7 @@ export const BoardProvider = ({ children, boardId }) => {
         socket.on("card:created", handleCardCreated);
         socket.on("card:updated", handleCardUpdated);
         socket.on("card:deleted", handleCardDeleted);
+        socket.on("activity:created", handleActivityCreated);
 
         socket.on("connect", handleConnect);
         socket.connect();
@@ -120,6 +132,7 @@ export const BoardProvider = ({ children, boardId }) => {
             socket.off("card:created", handleCardCreated);
             socket.off("card:updated", handleCardUpdated);
             socket.off("card:deleted", handleCardDeleted);
+            socket.off("activity:created", handleActivityCreated);
 
             if (socket.connected) {
                 socket.emit("board:leave", { boardId });
@@ -318,31 +331,75 @@ export const BoardProvider = ({ children, boardId }) => {
         }
     };
 
+
     const handleDragMove = (event) => {
-        setCardsByListId(prev => move(prev, event));
+        const source = event.operation?.source;
+        if (!source) return;
+
+        if (source.type === "list") {
+            setLists(prev => move(prev, event));
+            return;
+        }
+
+        if (source.type === "card") {
+            setCardsByListId(prev => move(prev, event));
+        }
     };
 
     const handleDragEnd = async (event) => {
         if (event.canceled) return;
 
-        const { source } = event.operation;
+        const source = event.operation?.source;
         if (!source) return;
-
-        // The list(s) touched by this drag — could be one (reorder) or two (cross-list move)
-        const listIds = [...new Set([source.initialGroup, source.group])].filter(Boolean);
 
         try {
             setError("");
-            const requests = listIds.flatMap(listId =>
-                (cardsByListId[listId] || []).map((card, index) =>
-                    updateCards(card._id, { listId, order: index })
-                )
-            );
-            await Promise.all(requests);
+
+            if (source.type === "list") {
+                // Persist the list order currently shown in React.
+                const orderedLists = [...lists];
+
+                await Promise.all(
+                    orderedLists.map((list, index) =>
+                        updateListAPi(list._id, { order: index })
+                    )
+                );
+
+                setLists(orderedLists.map((list, index) => ({
+                    ...list,
+                    order: index
+                })));
+
+                return;
+            }
+
+            if (source.type === "card") {
+                const listIds = [
+                    ...new Set([
+                        source.initialGroup,
+                        source.group
+                    ])
+                ].filter(Boolean);
+
+                const requests = listIds.flatMap(listId =>
+                    (cardsByListId[listId] || []).map((card, index) =>
+                        updateCards(card._id, {
+                            listId,
+                            order: index
+                        })
+                    )
+                );
+
+                await Promise.all(requests);
+            }
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to save card position!");
+            setError(
+                err.response?.data?.message ||
+                "Failed to save drag-and-drop changes!"
+            );
         }
     };
+
 
     return (
         <BoardContext.Provider value={{

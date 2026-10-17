@@ -1,5 +1,6 @@
 import { cardModel } from "../models/Card.js";
 import { emitToBoard } from "../socket/socket.js";
+import { logActivity } from "../utils/logActivity.js";
 
 export const createCard = async (req, res, next) => {
     try {
@@ -17,6 +18,15 @@ export const createCard = async (req, res, next) => {
             card,
             listId: String(req.list._id),
             boardId: String(req.board._id)
+        });
+
+        await logActivity({
+            boardId: req.board._id,
+            actorId: req.user._id,
+            action: "LIST_CREATED",
+            targetType: "list",
+            targetId: list._id,
+            message: `${req.user.userName} created list "${list.title}"`
         });
 
         return res.status(201).json(card);
@@ -46,6 +56,15 @@ export const updateCard = async (req, res, next) => {
             boardId: String(req.board._id)
         });
 
+        await logActivity({
+            boardId: req.board._id,
+            actorId: req.user._id,
+            action: "LIST_CREATED",
+            targetType: "list",
+            targetId: list._id,
+            message: `${req.user.userName} created list "${list.title}"`
+        });
+
         return res.json(req.card);
     } catch (err) {
         next(err);
@@ -62,6 +81,15 @@ export const deleteCard = async (req, res, next) => {
 
         // Real-time: notify all users on this board
         emitToBoard(boardId, "card:deleted", { cardId, listId, boardId });
+
+        await logActivity({
+            boardId: req.board._id,
+            actorId: req.user._id,
+            action: "LIST_CREATED",
+            targetType: "list",
+            targetId: list._id,
+            message: `${req.user.userName} created list "${list.title}"`
+        });
 
         return res.json({ message: "Card deleted!" });
     } catch (err) {

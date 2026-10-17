@@ -2,6 +2,50 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { userModel } from "../models/User.js";
 
+export const getAllUsers = async (req, res, next) => {
+    try {
+        const users = await userModel
+            .find()
+            .select("userName email role createdAt")
+            .sort({ createdAt: -1 });
+
+        return res.json(users);
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const changeUserRole = async (req, res, next) => {
+    try {
+        const { role } = req.body;
+
+        if (!["USER", "ADMIN"].includes(role)) {
+            return res.status(400).json({
+                message: "Role must be USER or ADMIN"
+            });
+        }
+
+        const user = await userModel.findByIdAndUpdate(
+            req.params.userId,
+            { role },
+            { new: true, runValidators: true }
+        ).select("userName email role");
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            });
+        }
+
+        return res.json({
+            message: "User role updated",
+            user
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const signup = async (req, res, next) => {
     try {
         // req.body is already validated & coerced by Zod (validate middleware)
